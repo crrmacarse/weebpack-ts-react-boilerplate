@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - release
+
+env:
+  PUBLIC_URL: http://crrmacarse.github.io
+  GA_TRACKING_CODE: ${{ secrets.GA_TRACKING_CODE }}
+  FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+  FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+  FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+  FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+  FIREBASE_SENDER_ID: ${{ secrets.FIREBASE_SENDER_ID }}
+  FIREBASE_APP_ID:1: ${{ secrets.FIREBASE_APP_ID }}
+  FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.0.0
+
+    - name: Use node 12
+      uses: actions/setup-node@v1
+      with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org
+
+    - name: install
+      run: npm install
+    - name: build
+      run: npm run prod
+    # https://babeljs.io/docs/en/next/babel-node.html#not-meant-for-production-use
+    # - name: build sitemap
+    #   run: npm run sitemap
+    - name: copy
+      run: npm run copy
+
+    - name: Build and Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        # ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: master
+        FOLDER: dist
